@@ -1,47 +1,19 @@
-# Prince-music-bot
+from flask import Flask
+import threading
 import os
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-import yt_dlp
 
-TOKEN = os.getenv("BOT_TOKEN")  # BotFather se mila token daal
+app = Flask(__name__)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🎵 Send me YouTube link, main MP3 bhej dunga!")
+@app.route('/')
+def home():
+    return "Bot is alive! 🎵"
 
-async def download_music(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    url = update.message.text
-    msg = await update.message.reply_text("🔄 Downloading...")
+def run_bot():
+    # Tera poora bot code yahan (application.run_polling())
+    app.run_polling()  # ya telegram_app.run_polling()
 
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'outtmpl': 'song.mp3',
-        'quiet': True,
-    }
+threading.Thread(target=run_bot).start()
 
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            title = info.get('title', 'Unknown')
-
-        await update.message.reply_audio(audio=open('song.mp3', 'rb'), title=title)
-        await msg.edit_text("✅ Done!")
-        
-        # Cleanup
-        if os.path.exists('song.mp3'):
-            os.remove('song.mp3')
-            
-    except Exception as e:
-        await msg.edit_text("❌ Error! Valid YouTube link bhej.")
-
-app = Application.builder().token(TOKEN).build()
-
-app.add_handler(CommandHandler("start", start))
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, download_music))
-
-app.run_polling()
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
