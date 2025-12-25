@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import yt_dlp
 
-TOKEN = os.getenv("8519540358:AAE3zKzAluyk1ooIPom_OhhQQ2eJFj-MX6U")  # BotFather se mila token daal
+TOKEN = os.getenv("BOT_TOKEN")  # BotFather se mila token daal
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🎵 Send me YouTube link, main MP3 bhej dunga!")
